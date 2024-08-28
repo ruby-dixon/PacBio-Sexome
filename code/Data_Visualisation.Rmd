@@ -1,0 +1,468 @@
+---
+title: "Data_Visualization"
+output: html_document
+---
+
+```{r Load Libraries}
+pkgs <- c("phyloseq", "tidyverse", "ampvis2", "ampvis2extras", 
+          "ggpubr", "agricolae", "plotly", "viridis", "cowplot", "MicrobeR", 
+          "microbiome", "reshape", "decontam", "data.table", "ape", "DESeq2", 
+          "vegan", "microbiomeutilities", "knitr", "tibble", "dplyr", 
+          "patchwork", "Biostrings", "RColorBrewer", "MicrobiotaProcess")
+lapply(pkgs, require, character.only = TRUE)
+theme_set(theme_bw())
+```
+
+```{r Load All Data}
+# load data files 
+samples <- load("pacbio_phyloseq.RData") 
+ampvis <- load("pacbio_ampvis.RData") 
+```
+
+```{r set paths}
+path.out <- "Figures/" 
+path.rds <- "RDS/" 
+path.rdata <- "RData/"
+```
+
+```{r Order couple numbers and time point for visualisation}
+# TO ORDER COUPLES FIRST CHANGE TO FACTOR#
+samples@sam_data$Couple <- as.factor(samples@sam_data$Couple)
+# THEN RE LEVEL #
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "12")
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "11")
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "10")
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "9")
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "8")
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "7")
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "6")
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "5")
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "4")
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "3")
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "2")
+samples@sam_data$Couple <- relevel(samples@sam_data$Couple, "1")
+
+samples@sam_data$Sample_time <- as.factor(samples@sam_data$Sample_time)
+samples@sam_data$Sample_time <- relevel(samples@sam_data$Sample_time, "After")
+samples@sam_data$Sample_time <- relevel(samples@sam_data$Sample_time, "Before")
+
+samples@sam_data$Sex <- as.factor(samples@sam_data$Sex)
+samples@sam_data$Sex <- relevel(samples@sam_data$Sex, "M")
+samples@sam_data$Sex <- relevel(samples@sam_data$Sex, "F")
+```
+
+```{r subset samples and controls}
+samples <- subset_samples(ps.noncontam, Sex == "F" | Sex == "M")
+controls <- subset_samples(ps_pacbio, Sex == "Control") 
+```
+
+```{r subset for alpha diversity}
+males <-subset_samples(samples, Sex == "M") 
+malepre <-subset_samples(males, Sample_time == "Before") 
+maleprecon <- subset_samples(malepre, Condom_use == "Yes" | Condom_use == "No")
+maleprecircum <- subset_samples(malepre, Curcumsized_male == "Yes" | Curcumsized_male == "No")
+malepostcircum <- subset_samples(malepost, Curcumsized_male == "Yes" | Curcumsized_male == "No")
+females <-subset_samples(samples, Sex == "F") 
+femalepre <-subset_samples(females, Sample_time == "Before") 
+femaleprecon <- subset_samples(femalepre, Condom_use == "Yes" | Condom_use == "No")
+femaleprecircum <- subset_samples(femalepre, Circumsized_couple == "Yes" | Circumsized_couple == "No")
+femalepostcircum <- subset_samples(femalepost, Circumsized_couple == "Yes" | Circumsized_couple == "No")
+female.oral <- subset_samples(femalepost, Oral_intercourse == "Yes" | Oral_intercourse == "No")
+male.oral <- subset_samples(malepost, Oral_intercourse == "Yes" | Oral_intercourse == "No")
+AbsFB <- subset_samples(femalepre, Abstinence_group == "2 - 3 days" | Abstinence_group == "4 - 5 days" | Abstinence_group == "6 - 10 days")
+AbsMB <- subset_samples(malepre, Abstinence_group == "2 - 3 days" | Abstinence_group == "4 - 5 days" | Abstinence_group == "6 - 10 days")
+```
+
+```{r alpha diversity}
+mycols <- plasma(10) 
+shan_alpha_plot <- plot_diversity_stats(samples, group = "Sex", 
+                            index = "diversity_shannon",
+                            label.format ="p.format",
+                            group.colors = mycols,
+                            stats = TRUE)
+shan_alpha_plot <- shan_alpha_plot + ylab("Shannon Index") + xlab("Sex") + labs(title = "Shannon Diversity Metric")
+shan_alpha_plot
+ggsave("alphadiv_shan.png", plot = shan_alpha_plot, path = path.out, 
+       width = 12, height = 15, units = "cm")
+```
+
+```{r ampvis beta plot}
+## pcoa plot ##
+pco <- amp_ordinate(
+  ampvis, 
+  type = "PCoA",
+  distmeasure = "bray",
+  sample_color_by = "Sex",
+  sample_label_by = "Couple", 
+  sample_label_size = 5, 
+  print_caption = TRUE, sample_shape_by = "Sex" , sample_point_size = 5, transform = "none") + theme(legend.position = "right") + ggtitle("(a) Aggregate PCoA Bray-Curtis") + theme(text = element_text(size = 16))
+
+## facetted beta plot ##
+ps.ord <- ordinate(samples, "PCoA", "bray")
+p1 <- plot_ordination(samples, ps.ord, type="samples", color="Couple", shape="Sex") 
+p2 <- p1 + geom_polygon(aes(fill=Couple)) + geom_point(size=5) + ggtitle("(b) Facetted PCoA Bray-Curtis ") 
+p3 <- p2 + facet_wrap(~Couple) + theme_bw() + geom_text(mapping = aes(label = Sample_time), size = 5, vjust = 1.5) + 
+  theme(text = element_text(size = 16)) + 
+  geom_point(size = 4)
+
+beta <- ggarrange(pco, p3, nrow = 2)
+beta
+ggsave("betaSEX.png", plot = beta, path = path.out, width = 40, height = 60, units = "cm")
+```
+
+```{r ampvis heatmap}
+#female only total
+ampvis_F <- amp_subset_samples(ampvis, Sex == "F")
+ampvis_F <- amp_subset_samples(ampvis_F, Sample_time == "Before")
+ampheatmap1 = amp_heatmap(ampvis_F,
+                          group_by = c("Couple"),
+                          facet_by = c("CST"),
+                          plot_values = TRUE,
+                          tax_show = 10,
+                          showRemainingTaxa = TRUE,
+                          tax_aggregate = "Genus",
+                          color_vector = c("white", "lightblue"),
+                          plot_colorscale = "sqrt",
+                          plot_legendbreaks = c(1, 5, 10),
+                          plot_functions = FALSE)
+ampheatmap1
+ggsave("ampheatmap1.png", plot = ampheatmap1, path = "Figures", width = 25, height = 20, units = "cm")
+```
+
+```{r}
+ampheatmap2 = amp_heatmap(ampvis,
+                          group = c("Sample_time"),
+                          facet_by = c("Sex"),
+                          plot_values = TRUE,
+                          tax_show = 10,
+                          showRemainingTaxa = TRUE,
+                          tax_aggregate = "Genus",
+                          tax_empty = "OTU",
+                          color_vector = blues9,
+                          plot_colorscale = "sqrt",
+                          plot_legendbreaks = c(1, 5, 10),
+                          plot_functions = FALSE)
+ampheatmap2
+ggsave("ampheatmap2.png", plot = ampheatmap2, path = path.out, width = 20, height = 15, units = "cm")
+```
+
+```{r packing circles}
+#load packages
+library(packcircles)
+library(circlepackeR)
+library(data.tree)
+library(htmlwidgets)
+library(webshot)
+```
+
+```{r subset samples for packing circles}
+males <- subset_samples(samples, Sex == "M") 
+females <- subset_samples(samples, Sex == "F") 
+
+#couple 1
+sample_1 <- subset_samples(samples, Couple == "1") 
+sample_1_M <- subset_samples(sample_1, Sex == "M") 
+sample1_M_B <- subset_samples(sample_1_M, Sample_time == "Before") 
+sample_1_F <- subset_samples(sample_1, Sex == "F") 
+sample1_F_B <- subset_samples(sample_1_F, Sample_time == "Before") 
+sample1_M_A <- subset_samples(sample_1_M, Sample_time == "After") 
+sample1_F_A <- subset_samples(sample_1_F, Sample_time == "After") 
+
+#couple 2
+sample_2 <- subset_samples(samples, Couple == "2") 
+sample_2_M <- subset_samples(sample_2, Sex == "M") 
+sample2_M_B <- subset_samples(sample_2_M, Sample_time == "Before") 
+sample_2_F <- subset_samples(sample_2, Sex == "F") 
+sample2_F_B <- subset_samples(sample_2_F, Sample_time == "Before") 
+sample2_M_A <- subset_samples(sample_2_M, Sample_time == "After") 
+sample2_F_A <- subset_samples(sample_2_F, Sample_time == "After") 
+
+#couple 3
+sample_3 <- subset_samples(samples, Couple == "3") 
+sample_3_M <- subset_samples(sample_3, Sex == "M") 
+sample3_M_B <- subset_samples(sample_3_M, Sample_time == "Before") 
+sample_3_F <- subset_samples(sample_3, Sex == "F") 
+sample3_F_B <- subset_samples(sample_3_F, Sample_time == "Before") 
+sample3_M_A <- subset_samples(sample_3_M, Sample_time == "After") 
+sample3_F_A <- subset_samples(sample_3_F, Sample_time == "After") 
+
+#couple 4
+sample_4 <- subset_samples(samples, Couple == "4") 
+sample_4_M <- subset_samples(sample_4, Sex == "M") 
+sample4_M_B <- subset_samples(sample_4_M, Sample_time == "Before") 
+sample_4_F <- subset_samples(sample_4, Sex == "F") 
+sample4_F_B <- subset_samples(sample_4_F, Sample_time == "Before") 
+sample4_M_A <- subset_samples(sample_4_M, Sample_time == "After") 
+sample4_F_A <- subset_samples(sample_4_F, Sample_time == "After") 
+
+#couple 5
+sample_5 <- subset_samples(samples, Couple == "5") 
+sample_5_M <- subset_samples(sample_5, Sex == "M") 
+sample5_M_B <- subset_samples(sample_5_M, Sample_time == "Before") 
+sample_5_F <- subset_samples(sample_5, Sex == "F") 
+sample5_F_B <- subset_samples(sample_5_F, Sample_time == "Before") 
+sample5_M_A <- subset_samples(sample_5_M, Sample_time == "After") 
+sample5_F_A <- subset_samples(sample_5_F, Sample_time == "After") 
+
+#couple 6
+sample_6 <- subset_samples(samples, Couple == "6") 
+sample_6_M <- subset_samples(sample_6, Sex == "M") 
+sample6_M_B <- subset_samples(sample_6_M, Sample_time == "Before") 
+sample_6_F <- subset_samples(sample_6, Sex == "F") 
+sample6_F_B <- subset_samples(sample_6_F, Sample_time == "Before") 
+sample6_M_A <- subset_samples(sample_6_M, Sample_time == "After") 
+sample6_F_A <- subset_samples(sample_6_F, Sample_time == "After") 
+
+#couple 7
+sample_7 <- subset_samples(samples, Couple == "7") 
+sample_7_M <- subset_samples(sample_7, Sex == "M") 
+sample7_M_B <- subset_samples(sample_7_M, Sample_time == "Before") 
+sample_7_F <- subset_samples(sample_7, Sex == "F") 
+sample7_F_B <- subset_samples(sample_7_F, Sample_time == "Before") 
+sample7_M_A <- subset_samples(sample_7_M, Sample_time == "After") 
+sample7_F_A <- subset_samples(sample_7_F, Sample_time == "After") 
+
+#couple 8
+sample_8 <- subset_samples(samples, Couple == "8") 
+sample_8_M <- subset_samples(sample_8, Sex == "M") 
+sample8_M_B <- subset_samples(sample_8_M, Sample_time == "Before") 
+sample_8_F <- subset_samples(sample_8, Sex == "F") 
+sample8_F_B <- subset_samples(sample_8_F, Sample_time == "Before") 
+sample8_M_A <- subset_samples(sample_8_M, Sample_time == "After") 
+sample8_F_A <- subset_samples(sample_8_F, Sample_time == "After") 
+
+#couple 9
+sample_9 <- subset_samples(samples, Couple == "9") 
+sample_9_M <- subset_samples(sample_9, Sex == "M") 
+sample9_M_B <- subset_samples(sample_9_M, Sample_time == "Before") 
+sample_9_F <- subset_samples(sample_9, Sex == "F") 
+sample9_F_B <- subset_samples(sample_9_F, Sample_time == "Before") 
+sample9_M_A <- subset_samples(sample_9_M, Sample_time == "After") 
+sample9_F_A <- subset_samples(sample_9_F, Sample_time == "After") 
+
+#couple 10
+sample_10 <- subset_samples(samples, Couple == "10") 
+sample_10_M <- subset_samples(sample_10, Sex == "M") 
+sample10_M_B <- subset_samples(sample_10_M, Sample_time == "Before") 
+sample_10_F <- subset_samples(sample_10, Sex == "F") 
+sample10_F_B <- subset_samples(sample_10_F, Sample_time == "Before") 
+sample10_M_A <- subset_samples(sample_10_M, Sample_time == "After") 
+sample10_F_A <- subset_samples(sample_10_F, Sample_time == "After") 
+
+#couple 11
+sample_11 <- subset_samples(samples, Couple == "11") 
+sample_11_M <- subset_samples(sample_11, Sex == "M") 
+sample11_M_B <- subset_samples(sample_11_M, Sample_time == "Before") 
+sample_11_F <- subset_samples(sample_11, Sex == "F") 
+sample11_F_B <- subset_samples(sample_11_F, Sample_time == "Before") 
+sample11_M_A <- subset_samples(sample_11_M, Sample_time == "After") 
+sample11_F_A <- subset_samples(sample_11_F, Sample_time == "After") 
+
+#couple 12
+sample_12 <- subset_samples(samples, Couple == "12") 
+sample_12_M <- subset_samples(sample_12, Sex == "M") 
+sample12_M_B <- subset_samples(sample_12_M, Sample_time == "Before") 
+sample_12_F <- subset_samples(sample_12, Sex == "F") 
+sample12_F_B <- subset_samples(sample_12_F, Sample_time == "Before") 
+sample12_M_A <- subset_samples(sample_12_M, Sample_time == "After") 
+sample12_F_A <- subset_samples(sample_12_F, Sample_time == "After") 
+```
+
+```{r create colour palette for packing circles}
+tax <- as.data.frame(t(phyloseq::tax_table(samples)@.Data)) #pull out taxa
+ttax <- transpose(tax)
+colnames(ttax) <- rownames(tax)
+rownames(ttax) <- colnames(tax)
+ttax <- ttax[, c(6)] #pull out genus only
+ttax <- as.data.frame(ttax)
+colnames(ttax)[1] <- "Genus" 
+abund <- as.data.frame(t(phyloseq::otu_table(samples)@.Data)) #pull out abundance
+abund$total_count <- rowSums(abund)
+abund <- cbind(abund, ttax) 
+abund <- cbind(abund, sequences) 
+abund <- subset(abund, total_count > 0)
+genustax <- abund[, c(55)]
+genustax <- unique(genustax)
+genustax <- as.data.frame(genustax)
+genustax <- transpose(genustax) #transpose so that each taxa is it's own variable
+
+#create colour palette 
+num_variable <- length(genustax)
+
+# Generate a pastel color palette and set the palette to genus 
+pastel_palette <- hsv(h = seq(0, 1, length.out = num_variable),
+                      s = 0.6, v = 0.9, alpha=0.1)
+genuscols <- setNames(pastel_palette, genustax)
+```
+
+```{r packing circle, only need to change couple number}
+#change number depending on couple
+#male before
+abundmb <- as.data.frame(t(phyloseq::otu_table(sample12_M_B)@.Data))  #### change depending on couple num
+colnames(abundmb)[1] <- "Abundance"
+
+#add taxonomy info to abundance file
+abundmb <- cbind(abundmb, ttax)
+abundmb <- subset(abundmb, Abundance > 0)
+abundmb <- abundmb[order(-abundmb$Abundance), ] ### REORDERS DATA SO CIRCLES ARE ARRANGED BY SIZE. USE - FOR DESCENDING (LARGEST TO SMALLEST). REMOVE - FOR ASCENDING (SMALLEST TO LARGEST)
+
+# Generate the layout. This function return a dataframe with one line per bubble. 
+# It gives its center (x and y) and its radius, proportional of the value
+packing_MB <- circleProgressiveLayout(abundmb$Abundance, sizetype='area')
+
+# We can add these packing information to the initial data frame
+data_MB <- cbind(abundmb, packing_MB)
+
+# Check that radius is proportional to value. We don't want a linear relationship, since it is the AREA that must be proportional to the value
+plot(data_MB$radius, data_MB$value)
+ 
+# The next step is to go from one center + a radius to the coordinates of a circle that
+# is drawn by a multitude of straight lines.
+dat.gg.m <- circleLayoutVertices(packing_MB, npoints=50)
+
+dat.gg.m$Genus <- rep(data_MB$Genus, each=51)
+
+# Make the plot
+couplemb <- ggplot() + geom_polygon(data = dat.gg.m, aes(x, y, group = id, fill=Genus), colour = "black", alpha = 0.6) + scale_size_continuous(range = c(1,4)) + theme_void()  + scale_fill_manual(values = genuscols) + theme(legend.position="none") +  coord_equal() + geom_text(data = data_MB, aes(x, y, size=Abundance, label = rownames(data_MB)))
+couplemb <- couplemb + labs(title = "Male Before")
+couplemb
+#male after
+abundma <- as.data.frame(t(phyloseq::otu_table(sample12_M_A)@.Data)) #### change depending on couple num
+colnames(abundma)[1] <- "Abundance"
+
+#add taxonomy info
+abundma <- cbind(abundma, ttax)
+abundma <- subset(abundma, Abundance > 0)
+abundma <- abundma[order(-abundma$Abundance), ]
+
+# Generate the layout. This function return a dataframe with one line per bubble. 
+# It gives its center (x and y) and its radius, proportional of the value
+packing_MA <- circleProgressiveLayout(abundma$Abundance, sizetype='area')
+
+# We can add these packing information to the initial data frame
+data_MA <- cbind(abundma, packing_MA)
+ 
+# The next step is to go from one center + a radius to the coordinates of a circle that
+# is drawn by a multitude of straight lines.
+dat.gg.m.a <- circleLayoutVertices(packing_MA, npoints=50)
+
+#add genus info
+dat.gg.m.a$Genus <- rep(data_MA$Genus, each=51)
+
+# Make the plot
+couplema <- ggplot() + geom_polygon(data = dat.gg.m.a, aes(x, y, group = id, fill=Genus), colour = "black", alpha = 0.6) + scale_size_continuous(range = c(1,4)) + theme_void() + theme(legend.position="none") + scale_fill_manual(values = genuscols) +  coord_equal() + geom_text(data = data_MA, aes(x, y, size=Abundance, label = rownames(data_MA))) 
+couplema <- couplema + labs(title = "Male After")
+couplem <- ggarrange(couplemb, couplema, ncol = 2)
+ggsave("couple12m.png", plot = couplem, path = path.out, #### change name depending on couple
+       width = 25, height = 30, units = "cm")
+
+#female before
+abundfb <- as.data.frame(t(phyloseq::otu_table(sample12_F_B)@.Data)) #### change depending on couple num
+colnames(abundfb)[1] <- "Abundance"
+
+#add taxonomy info
+abundfb <- cbind(abundfb, ttax)
+abundfb <- subset(abundfb, Abundance > 0)
+abundfb <- abundfb[order(-abundfb$Abundance), ]
+
+# Generate the layout. This function return a dataframe with one line per bubble. 
+# It gives its center (x and y) and its radius, proportional of the value
+packing_FB <- circleProgressiveLayout(abundfb$Abundance, sizetype='area')
+
+# We can add these packing information to the initial data frame
+data_FB <- cbind(abundfb, packing_FB)
+
+# Check that radius is proportional to value. We don't want a linear relationship, since it is the AREA that must be proportional to the value
+plot(data_FB$radius, data_FB$value)
+ 
+# The next step is to go from one center + a radius to the coordinates of a circle that
+# is drawn by a multitude of straight lines.
+dat.gg.f <- circleLayoutVertices(packing_FB, npoints=50)
+
+dat.gg.f$Genus <- rep(data_FB$Genus, each=51)
+
+# Make the plot
+couplefb <- ggplot() + geom_polygon(data = dat.gg.f, aes(x, y, group = id, fill=Genus), colour = "black", alpha = 0.6) + scale_size_continuous(range = c(1,4)) + theme_void() + scale_fill_manual(values=genuscols) + theme(legend.position="none") +  coord_equal() + geom_text(data = data_FB, aes(x, y, size=Abundance, label = rownames(data_FB))) 
+couplefb <- couplefb + labs(title = "Female Before")
+couplefb
+
+#female after
+abundfa <- as.data.frame(t(phyloseq::otu_table(sample12_F_A)@.Data)) #### change depending on couple num
+colnames(abundfa)[1] <- "Abundance"
+
+abundfa <- cbind(abundfa, ttax)
+abundfa <- subset(abundfa, Abundance > 0)
+abundfa <- abundfa[order(-abundfa$Abundance), ]
+
+# Generate the layout. This function return a dataframe with one line per bubble. 
+# It gives its center (x and y) and its radius, proportional of the value
+packing_FA <- circleProgressiveLayout(abundfa$Abundance, sizetype='area')
+
+# We can add these packing information to the initial data frame
+data_FA <- cbind(abundfa, packing_FA)
+ 
+# The next step is to go from one center + a radius to the coordinates of a circle that
+# is drawn by a multitude of straight lines.
+dat.gg.f.a <- circleLayoutVertices(packing_FA, npoints=50)
+
+dat.gg.f.a$Genus <- rep(data_FA$Genus, each=51)
+
+# Make the plot
+couplefa <- ggplot() + geom_polygon(data = dat.gg.f.a, aes(x, y, group = id, fill=Genus), colour = "black", alpha = 0.6) + scale_fill_manual(values = genuscols) + scale_size_continuous(range = c(1,4)) + theme_void()  +theme(legend.position="none") +  coord_equal() + geom_text(data = data_FA, aes(x, y, size=Abundance, label = rownames(data_FA))) 
+couplefa <- couplefa + labs(title = "Female After")
+couplefa
+couplef <- ggarrange(couplefb, couplefa, ncol = 2, common.legend = TRUE, legend = "right")
+couplef
+ggsave("couple12f.png", plot = couplef, path = path.out, #### change depending on couple num
+       width = 30, height = 25, units = "cm")
+
+
+couple <- ggarrange(couplem, couplef, nrow = 2, common.legend = TRUE, legend = "right")
+couple <- annotate_figure(couple, top = text_grob("Couple 12 (No Condom)", color = "black", face = "plain", size = 14)) #### change depending on couple num
+couple
+ggsave("couple12_circle.png", plot = couple, path = "Figures", #### change depending on couple num
+       width = 30, height = 40, units = "cm")
+```
+
+
+```{r Bar Plot of Lactobacillaceae Distribution}
+mycols <- c("#AECDE1", "#CF352B", "#B1D28B", "#549E3E", "#386EA4", "#ED9E9B", "#F3C17B", "#C6B3D3", "#EF8632", "#643F95")
+mycols <- c("skyblue", "red", "lightgreen", "darkgreen", "blue", "lightsalmon", "lightcoral", "lavender", "orange", "purple")
+categories <- lactotax_adund$Taxonomy
+values <- lactotax_adund$Relative_abundance
+png("bar_plot.png", width = 800, height = 600)
+percentages <- round((values / sum(values)) * 100, 1)
+
+bar_pos <- barplot(values, main = "", names.arg = categories, ylim = c(0, max(values) * 1.2))
+x <- barplot(values, names.arg = categories, col = mycols, main = "Bar Plot of Lactobacillaceae Distribution in Dataset", ylab = "Relative Abundance", xaxt = "n", las=3, ylim = c(0, max(values) * 1.2)) + text(x = bar_pos, y = values, labels = paste0(percentages, "%"), pos = 3, offset = 0.5, cex = 0.8, col = "black") + mtext("Taxonomy", side = 1, line = 5) 
+axis(side = 1, las = 2, mgp = c(3, 0.75, 0))
+text(x = 1:length(lactotax_adund$Taxonomy),
+     y = par("usr")[3],
+     labels = names(lactotax_adund$Taxonomy),
+     cex = 1.2)
+```
+
+```{r pos control barplot}
+poscontrol <- read_csv("controls/poscontrol.csv")
+poscontrol <- as.data.frame(poscontrol)
+mycols=plasma(10)
+
+pos <- ggplot(poscontrol, aes(fill=Taxonomy, y=Abundance, x=Composition)) + 
+    geom_bar(position="stack", stat="identity") + scale_fill_manual(values = mycols) + ggtitle("Positive Control") + xlab("Composition") +ylab ("Mean Relative Abundance (%)")       
+ggsave("pos.png",
+  plot = pos,
+  path = path.out,
+  width = 13,
+  height = 15,
+  units = "cm")
+```
+
+
+
+
+
+
+
+
+
+

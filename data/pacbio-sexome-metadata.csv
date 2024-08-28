@@ -1,0 +1,49 @@
+﻿Sample_ID,Barcode_ID,Sex,Sample_time,Oral_intercourse,Cohort_Year,Used_barrier_contraceptive,Condom_use,Pubic_hair,Hair_status,Curcumsized_male,Circumsized_couple,Additional_lubrications_used,Couple_num,Couple,Couple_ID,Asbstinence,Abstinence_group,Participant_ID,CST
+20_003,bc1011--bc1018,M,Before,Unknown,20,No,No,Minimally trimmed,Hair present,No,No,No,1,1,20_1,5 days,4 - 5 days,M01,NA
+20_009,bc1011--bc1020,F,Before,Unknown,20,No,No,Mostly trimmed,Hair present,N/A,No,No,1,1,20_1,5 days,4 - 5 days,F01,CST III
+20_015,bc1011--bc1019,M,After,Unknown,20,No,No,Minimally trimmed,Hair present,No,No,No,1,1,20_1,5 days,4 - 5 days,M01,NA
+20_018,bc1011--bc1021,F,After,Unknown,20,No,No,Mostly trimmed,Hair present,N/A,No,No,1,1,20_1,5 days,4 - 5 days,F01,CST III
+20_064,bc1011--bc1026,M,Before,Unknown,20,No,No,Natural,Hair present,Yes,Yes,Yes,2,2,20_4,10 days,6 - 10 days,M02,NA
+20_068,bc1011--bc1028,F,Before,Unknown,20,No,No,Minimally trimmed,Hair present,N/A,Yes,Yes,2,2,20_4,10 days,6 - 10 days,F02,CST IV
+20_073,bc1011--bc1027,M,After,Unknown,20,No,No,Natural,Hair present,Yes,Yes,Yes,2,2,20_4,10 days,6 - 10 days,M02,NA
+20_078,bc1011--bc1029,F,After,Unknown,20,No,No,Minimally trimmed,Hair present,N/A,Yes,Yes,2,2,20_4,10 days,6 - 10 days,F02,CST IV
+20_103,bc1014--bc1020,M,Before,Unknown,20,Partial,No,Natural,Hair present,No,No,No,3,3,20_6,10 days,6 - 10 days,M03,NA
+20_109,bc1013--bc1021,F,Before,Unknown,20,Partial,No,Mostly trimmed,Hair present,N/A,No,No,3,3,20_6,10 days,6 - 10 days,F03,CST II
+20_115,bc1015--bc1020,M,After,Unknown,20,Partial,No,Natural,Hair present,No,No,No,3,3,20_6,10 days,6 - 10 days,M03,NA
+20_120,bc1014--bc1021,F,After,Unknown,20,Partial,No,Mostly trimmed,Hair present,N/A,No,No,3,3,20_6,10 days,6 - 10 days,F03,CST II
+20_163,bc1008--bc1022,M,Before,Unknown,20,Yes,Yes,Minimally trimmed,Hair present,Yes,Yes,No,4,4,20_9,5 days,4 - 5 days,M04,NA
+20_169,bc1009--bc1016,F,Before,Unknown,20,Yes,Yes,Minimally trimmed,Hair present,N/A,Yes,No,4,4,20_9,5 days,4 - 5 days,F04,CST I
+20_173,bc1008--bc1023,M,After,Unknown,20,Yes,Yes,Minimally trimmed,Hair present,Yes,Yes,No,4,4,20_9,5 days,4 - 5 days,M04,NA
+20_179,bc1009--bc1017,F,After,Unknown,20,Yes,Yes,Minimally trimmed,Hair present,N/A,Yes,No,4,4,20_9,5 days,4 - 5 days,F04,CST I
+20_244,bc1008--bc1018,M,Before,Unknown,20,Yes,Yes,Natural,Hair present,No,No,No,5,5,20_13,6 days,6 - 10 days,M05,NA
+20_248,bc1008--bc1020,F,Before,Unknown,20,Yes,Yes,No hair,No hair present,N/A,No,No,5,5,20_13,6 days,6 - 10 days,F05,CST I
+20_254,bc1008--bc1019,M,After,Unknown,20,Yes,Yes,Natural,Hair present,No,No,No,5,5,20_13,6 days,6 - 10 days,M05,NA
+20_260,bc1008--bc1021,F,After,Unknown,20,Yes,Yes,No hair,No hair present,N/A,No,No,5,5,20_13,6 days,6 - 10 days,F05,CST I
+20_324,bc1012--bc1026,M,Before,Unknown,20,No,No,Trimmed,Hair present,Yes,Yes,Yes,6,6,20_17,Unknown,N/a,M06,NA
+20_330,bc1012--bc1028,F,Before,Unknown,20,No,No,No hair,No hair present,N/A,Yes,Yes,6,6,20_17,Unknown,N/a,F06,CST IV
+20_335,bc1012--bc1027,M,After,Unknown,20,No,No,Trimmed,Hair present,Yes,Yes,Yes,6,6,20_17,Unknown,N/a,M06,NA
+20_340,bc1013--bc1020,F,After,Unknown,20,No,No,No hair,No hair present,N/A,Yes,Yes,6,6,20_17,Unknown,N/a,F06,CST IV
+20_365,bc1011--bc1022,M,Before,Unknown,20,Yes,Yes,Minimally trimmed,Hair present,No,No,Yes,7,7,20_19,Unknown,N/a,M07,NA
+20_366,bc1012--bc1016,F,Before,Unknown,20,Yes,Yes,No hair,No hair present,N/A,No,Yes,7,7,20_19,Unknown,N/a,F07,CST I
+20_373,bc1011--bc1023,M,After,Unknown,20,Yes,Yes,Minimally trimmed,Hair present,No,No,Yes,7,7,20_19,Unknown,N/a,M07,NA
+20_378,bc1012--bc1017,F,After,Unknown,20,Yes,Yes,No hair,No hair present,N/A,No,Yes,7,7,20_19,Unknown,N/a,F07,CST I
+21_022,bc1012--bc1018,M,Before,No,21,No,No,Mostly trimmed,Hair present,No,No,No,12,12,21_2,4 days,4 - 5 days,M12,NA
+21_026,bc1012--bc1020,F,Before,No,21,No,No,No hair,No hair present,N/A,No,No,12,12,21_2,4 days,4 - 5 days,F12,CST IV
+21_033,bc1012--bc1019,M,After,No,21,No,No,Mostly trimmed,Hair present,No,No,No,12,12,21_2,4 days,4 - 5 days,M12,NA
+21_037,bc1012--bc1021,F,After,No,21,No,No,No hair,No hair present,N/A,No,No,12,12,21_2,4 days,4 - 5 days,F12,CST IV
+21_302,bc1009--bc1022,M,Before,No,21,No,No,Minimally trimmed,Hair present,No,No,No,9,9,21_16,2 days,2 - 3 days,M09,NA
+21_309,bc1010--bc1016,F,Before,No,21,No,No,Natural,Hair present,N/A,No,No,9,9,21_16,2 days,2 - 3 days,F09,CST I
+21_313,bc1009--bc1023,M,After,No,21,No,No,Minimally trimmed,Hair present,No,No,No,9,9,21_16,2 days,2 - 3 days,M09,NA
+21_316,bc1010--bc1017,F,After,No,21,No,No,Natural,Hair present,N/A,No,No,9,9,21_16,2 days,2 - 3 days,F09,CST I
+21_324,bc1010--bc1018,M,Before,No,21,No,No,Natural,Hair present,No,No,No,10,10,21_17,2 days,2 - 3 days,M10,NA
+21_326,bc1010--bc1020,F,Before,No,21,No,No,No hair,No hair present,N/A,No,No,10,10,21_17,2 days,2 - 3 days,F10,CST I
+21_332,bc1010--bc1019,M,After,No,21,No,No,Natural,Hair present,No,No,No,10,10,21_17,2 days,2 - 3 days,M10,NA
+21_337,bc1010--bc1021,F,After,No,21,No,No,No hair,No hair present,N/A,No,No,10,10,21_17,2 days,2 - 3 days,F10,CST I
+21_343,bc1010--bc1022,M,Before,Yes,21,No,No,Mostly trimmed,Hair present,No,No,No,11,11,21_18,3 days,2 - 3 days,M11,NA
+21_349,bc1011--bc1016,F,Before,Yes,21,No,No,Mostly trimmed,Hair present,N/A,No,No,11,11,21_18,3 days,2 - 3 days,F11,CST I
+21_353,bc1010--bc1023,M,After,Yes,21,No,No,Mostly trimmed,Hair present,No,No,No,11,11,21_18,3 days,2 - 3 days,M11,NA
+21_358,bc1011--bc1017,F,After,Yes,21,No,No,Mostly trimmed,Hair present,N/A,No,No,11,11,21_18,3 days,2 - 3 days,F11,CST I
+21_365,bc1009--bc1018,M,Before,Yes,21,No,No,No hair,No hair present,No,No,No,8,8,21_19,3 days,2 - 3 days,M08,NA
+21_370,bc1009--bc1020,F,Before,Yes,21,No,No,No hair,No hair present,N/A,No,No,8,8,21_19,3 days,2 - 3 days,F08,CST I
+21_375,bc1009--bc1019,M,After,Yes,21,No,No,No hair,No hair present,No,No,No,8,8,21_19,3 days,2 - 3 days,M08,NA
+21_376,bc1009--bc1021,F,After,Yes,21,No,No,No hair,No hair present,N/A,No,No,8,8,21_19,3 days,2 - 3 days,F08,CST I
